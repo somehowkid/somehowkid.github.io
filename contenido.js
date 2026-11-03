@@ -43,6 +43,20 @@ const PERFIL = {
 
 const CONTENIDO = [
   {
+    id: "mix-ricky-rickon",
+    tipo: "musica",
+    titulo: "Mix ricky rickon",
+    fecha: "2026-11-03",
+    url: "https://open.spotify.com/playlist/0ili57XSwNJFIbGAITPLBf",
+  },
+  {
+    id: "paxi-fixi",
+    tipo: "musica",
+    titulo: "Paxi fixi",
+    fecha: "2026-11-03",
+    url: "https://open.spotify.com/playlist/6KxbOHSCPlaLmnMBir1S2Q",
+  },
+  {
     id: "sobre-las-implicancias-de-la-muerte",
     tipo: "texto",
     titulo: "Sobre las implicancias de la muerte",
