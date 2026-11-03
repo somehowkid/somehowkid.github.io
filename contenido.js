@@ -19,12 +19,13 @@ const PERFIL = {
 //  El primero de la lista es el que aparece primero.
 //
 //  Cada "tipo" va a una sala:
-//    "texto"  → Biblioteca 📚     "video" → Cine 🎬
-//    "imagen" → Galería 🖼️       "link"  → Café ☕
+//    "texto"  → Biblioteca 📚 (Mis textos)    "libro"  → Biblioteca 📚 (Mis lecturas)
+//    "video"  → Cine 🎬                       "imagen" → Galería 🖼️
+//    "musica" → Café ☕ (Música)              "audio"  → Café ☕ (Charlas)
 //
 //  Campos:
 //    id      → nombre único, sin espacios ni tildes (se usa en la dirección)
-//    tipo    → "texto" | "imagen" | "video" | "link"
+//    tipo    → "texto" | "libro" | "imagen" | "video" | "musica" | "audio"
 //    titulo  → el título
 //    texto   → opcional, texto o descripción
 //              (dejá una línea en blanco con \n\n para separar párrafos)
@@ -34,11 +35,12 @@ const PERFIL = {
 //
 //    imagen  → (imagen) ruta o URL de la foto, ej: "img/foto.jpg"
 //              (en un link o video también sirve como miniatura)
+//    url     → (video) link de YouTube, Vimeo, X/Twitter o TikTok
+//              (musica) link de Spotify
+//    audio   → (audio) archivo de la charla, ej: "audios/charla.mp3"
 //    youtube → (video) el link de YouTube, entero o solo el código
 //    vimeo   → (video) el link de Vimeo
 //    video   → (video) un archivo .mp4, ej: "videos/clip.mp4"
-//    url     → (link) la dirección a la que lleva: Spotify, Instagram,
-//              una nota, un video de TikTok, lo que sea
 // ============================================================
 
 const CONTENIDO = [

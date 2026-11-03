@@ -144,6 +144,12 @@ article.reader .media a{display:block}
 .media.spotify iframe{aspect-ratio:auto;height:352px;background:transparent}
 .media.spotify-corto iframe{aspect-ratio:auto;height:152px;background:transparent}
 .media.spotify,.media.spotify-corto{background:transparent;border-radius:12px}
+.media.audio{background:transparent;border-radius:12px}
+.media.audio audio{display:block;width:100%}
+.media.tweet iframe{aspect-ratio:auto;height:620px;max-width:550px;margin:0 auto;background:transparent}
+.media.tweet{background:transparent}
+.media.vertical iframe{aspect-ratio:9/16;width:auto;max-width:100%;height:min(80vh,740px);margin:0 auto}
+.media.vertical{background:#000}
 .tag.mini{padding:5px 11px 5px 7px;font-size:13px}
 .temas{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
 .temas button{border:1px solid var(--line);background:var(--panel);border-radius:99px;padding:4px 11px;font-size:12.5px;font-weight:500}
@@ -206,7 +212,7 @@ body.modo-pagina #app{display:none}
   </header>
 
   <section class="hero" id="hero">
-    <p>Hacé clic en una sala: en la biblioteca están mis textos y mis lecturas, en el cine los videos, en la galería las imágenes y en el café los links y la música que vale la pena ver.</p>
+    <p>Hacé clic en una sala: en la biblioteca están mis textos y mis lecturas, en el cine los videos, en la galería las imágenes y en el café la música y mis charlas.</p>
     <div class="hint"><i></i><span id="aliveTxt">Hay gente dando vueltas por acá.</span></div>
   </section>
 
@@ -229,7 +235,7 @@ const $ = s => document.querySelector(s);
 
 /* ============ tu contenido: helpers compartidos ============ */
 const el = (tag, cls, txt) => { const e = document.createElement(tag); if(cls) e.className = cls; if(txt!=null) e.textContent = txt; return e; };
-const ICONO = {texto:'📝', imagen:'🖼️', video:'🎬', link:'🔗', libro:'📖', musica:'🎵'};
+const ICONO = {texto:'📝', imagen:'🖼️', video:'🎬', link:'🔗', libro:'📖', musica:'🎵', audio:'🎙️'};
 function formatearFecha(f){
   if(!f) return '';
   return new Date(f + 'T12:00:00').toLocaleDateString('es-AR', {day:'numeric', month:'long', year:'numeric'});
@@ -242,7 +248,8 @@ function idYoutube(v){ const m = String(v).match(/(?:youtu\.be\/|v=|embed\/|shor
 function idVimeo(v){ const m = String(v).match(/(\d{6,})/); return m ? m[1] : String(v).trim(); }
 function miniatura(item){
   if(item.imagen) return item.imagen;
-  if(item.youtube) return `https://img.youtube.com/vi/${idYoutube(item.youtube)}/mqdefault.jpg`;
+  const yt = item.youtube || (item.tipo==='video' && /youtu\.?be/.test(String(item.url||'')) ? item.url : '');
+  if(yt) return `https://img.youtube.com/vi/${idYoutube(yt)}/mqdefault.jpg`;
   return '';
 }
 const linkPagina = item => '?p=' + encodeURIComponent(item.id);
@@ -257,6 +264,25 @@ function armarMedia(item){
     if(item.youtube){ const f = el('iframe'); f.src = `https://www.youtube-nocookie.com/embed/${idYoutube(item.youtube)}`; f.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture'; f.allowFullscreen = true; f.title = item.titulo; box.appendChild(f); return box; }
     return null;
   }
+  if(item.tipo==='audio'){
+    if(!item.audio) return null;
+    const a = el('audio'); a.src = item.audio; a.controls = true; a.preload = 'metadata'; box.classList.add('audio'); box.appendChild(a); return box;
+  }
+  if(item.tipo==='video' && item.url && !item.youtube && !item.vimeo){
+    const u = String(item.url);
+    if(/youtu\.?be/.test(u)) item = {...item, youtube:u};
+    else if(/vimeo\.com/.test(u)) item = {...item, vimeo:u};
+    else {
+      const tw = u.match(/(?:twitter|x)\.com\/[^/]+\/status\/(\d+)/);
+      const tt = u.match(/tiktok\.com\/.*\/video\/(\d+)/);
+      if(tw || tt){
+        const f = el('iframe'); f.allowFullscreen = true; f.loading = 'lazy'; f.title = item.titulo;
+        f.src = tw ? `https://platform.twitter.com/embed/Tweet.html?id=${tw[1]}&dnt=true` : `https://www.tiktok.com/player/v1/${tt[1]}`;
+        box.classList.add(tw ? 'tweet' : 'vertical'); box.appendChild(f); return box;
+      }
+      return null;
+    }
+  }
   if(item.tipo==='video'){
     if(item.youtube){ const f = el('iframe'); f.src = `https://www.youtube-nocookie.com/embed/${idYoutube(item.youtube)}`; f.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture'; f.allowFullscreen = true; f.title = item.titulo; box.appendChild(f); }
     else if(item.vimeo){ const f = el('iframe'); f.src = `https://player.vimeo.com/video/${idVimeo(item.vimeo)}`; f.allow = 'autoplay; fullscreen; picture-in-picture'; f.allowFullscreen = true; f.title = item.titulo; box.appendChild(f); }
@@ -266,7 +292,7 @@ function armarMedia(item){
   else return null;
   return box;
 }
-const tieneLink = item => ['link','libro','musica'].includes(item.tipo) && !!item.url;
+const tieneLink = item => ['link','libro','musica','video'].includes(item.tipo) && !!item.url;
 function botonLink(item){
   const a = el('a','btn principal', `${item.tipo==='libro' ? 'Conseguirlo en' : 'Abrir en'} ${dominio(item.url)} ↗`); a.href = item.url; a.target = '_blank'; a.rel = 'noopener'; return a;
 }
@@ -314,8 +340,8 @@ const ROOMS = [
     secciones:[{id:'textos', nombre:'📝 Mis textos', tipo:'texto'}, {id:'lecturas', nombre:'📖 Mis lecturas', tipo:'libro'}]},
   {id:'cine', name:'Cine', icon:'🎬', sub:'Videos', tipo:'video', x0:10,z0:1,x1:16,z1:7},
   {id:'galeria', name:'Galería', icon:'🖼️', sub:'Imágenes', tipo:'imagen', x0:18,z0:1,x1:24,z1:7},
-  {id:'cafe', name:'Café', icon:'☕', sub:'Links y música', x0:1,z0:9,x1:8,z1:16,
-    secciones:[{id:'links', nombre:'🔗 Links', tipo:'link'}, {id:'tocadiscos', nombre:'🎵 Música', tipo:'musica'}]},
+  {id:'cafe', name:'Café', icon:'☕', sub:'Música y charlas', x0:1,z0:9,x1:8,z1:16,
+    secciones:[{id:'tocadiscos', nombre:'🎵 Música', tipo:'musica'}, {id:'charlas', nombre:'🎙️ Charlas', tipo:'audio'}]},
   {id:'recepcion', name:'Recepción', icon:'👋', sub:'Contacto', x0:10,z0:9,x1:24,z1:16}
 ];
 const roomAt = (x,z) => ROOMS.find(r => x>=r.x0 && x<=r.x1 && z>=r.z0 && z<=r.z1) || null;
