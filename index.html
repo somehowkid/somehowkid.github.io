@@ -144,6 +144,7 @@ article.reader .media a{display:block}
 .media.spotify iframe{aspect-ratio:auto;height:352px;background:transparent}
 .media.spotify-corto iframe{aspect-ratio:auto;height:152px;background:transparent}
 .media.spotify,.media.spotify-corto{background:transparent;border-radius:12px}
+.media.en-lista{margin-bottom:10px}
 .media.audio{background:transparent;border-radius:12px}
 .media.audio audio{display:block;width:100%}
 .media.tweet iframe{aspect-ratio:auto;height:620px;max-width:550px;margin:0 auto;background:transparent}
@@ -1039,6 +1040,13 @@ function renderRoom(r, itemId){
   const visibles = items.filter(c => !temaActual || (c.temas || []).includes(temaActual));
   if(!visibles.length){ body.appendChild(el('p','vacio', secs.length > 1 ? 'Todavía no hay nada en esta sección.' : 'Todavía no hay nada en esta sala.')); return; }
   for(const c of visibles){
+    // música de Spotify: en la lista se muestra directo el reproductor compacto
+    const sp = c.tipo==='musica' && String(c.url || '').match(/open\.spotify\.com\/(?:intl-[\w-]+\/)?(track|album|playlist|episode|show|artist)\/([\w]+)/);
+    if(sp){
+      const box = el('div','media spotify-corto en-lista'), f = el('iframe');
+      f.src = `https://open.spotify.com/embed/${sp[1]}/${sp[2]}`; f.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture'; f.loading = 'lazy'; f.title = c.titulo;
+      box.appendChild(f); body.appendChild(box); continue;
+    }
     const b = el('button','item' + (c.puesto ? ' con-puesto' : '')), m = miniatura(c);
     if(c.puesto) b.appendChild(el('span','puesto', '#' + c.puesto));
     // sin imagen (textos y links sin foto) no se muestra recuadro: la tarjeta queda solo con el texto
