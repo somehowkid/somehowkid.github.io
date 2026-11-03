@@ -146,7 +146,7 @@ article.reader .media a{display:block}
 .media.spotify,.media.spotify-corto{background:transparent;border-radius:12px}
 .media.en-lista{margin-bottom:18px}
 .cab-musica{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:nowrap;margin:4px 0 8px;background:#1d1a26;border-radius:12px;padding:10px 10px 10px 16px}
-.titulo-musica{flex:1;min-width:0;overflow-wrap:anywhere;font-size:22px;font-weight:800;line-height:1.2;margin:0;color:#ffd23f;letter-spacing:.2px}
+.titulo-musica{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:21px;font-weight:800;line-height:1.2;margin:0;color:#ffd23f;letter-spacing:.2px}
 .ver-musica{flex:none;font-size:13px;padding:6px 12px;white-space:nowrap}
 .media.audio{background:transparent;border-radius:12px}
 .media.audio audio{display:block;width:100%}
@@ -1049,8 +1049,8 @@ function renderRoom(r, itemId){
       const box = el('div','media spotify-corto en-lista'), f = el('iframe');
       f.src = `https://open.spotify.com/embed/${sp[1]}/${sp[2]}`; f.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture'; f.loading = 'lazy'; f.title = c.titulo;
       box.appendChild(f);
-      const ver = el('a','btn ver-musica','Ver lista completa ↗'); ver.href = linkPagina(c); ver.target = '_blank'; ver.rel = 'noopener';
-      const cab = el('div','cab-musica'); cab.append(el('h3','titulo-musica', c.titulo), ver);
+      const ver = el('a','btn ver-musica','Ver lista ↗'); ver.title = 'Ver la lista completa en otra pestaña'; ver.href = linkPagina(c); ver.target = '_blank'; ver.rel = 'noopener';
+      const cab = el('div','cab-musica'); const h = el('h3','titulo-musica', c.titulo); h.title = c.titulo; cab.append(h, ver);
       body.append(cab, box); continue;
     }
     const b = el('button','item' + (c.puesto ? ' con-puesto' : '')), m = miniatura(c);
