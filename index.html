@@ -145,7 +145,9 @@ article.reader .media a{display:block}
 .media.spotify-corto iframe{aspect-ratio:auto;height:152px;background:transparent}
 .media.spotify,.media.spotify-corto{background:transparent;border-radius:12px}
 .media.en-lista{margin-bottom:18px}
-.titulo-musica{font-size:22px;font-weight:800;line-height:1.2;margin:4px 0 8px;color:#a87b00}
+.cab-musica{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:4px 0 8px}
+.titulo-musica{font-size:22px;font-weight:800;line-height:1.2;margin:0;color:#a87b00}
+.ver-musica{font-size:13px;padding:6px 12px;white-space:nowrap}
 [data-theme="dark"] .titulo-musica{color:#ffd23f}
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .titulo-musica{color:#ffd23f} }
 .media.audio{background:transparent;border-radius:12px}
@@ -1048,7 +1050,10 @@ function renderRoom(r, itemId){
     if(sp){
       const box = el('div','media spotify-corto en-lista'), f = el('iframe');
       f.src = `https://open.spotify.com/embed/${sp[1]}/${sp[2]}`; f.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture'; f.loading = 'lazy'; f.title = c.titulo;
-      box.appendChild(f); body.append(el('h3','titulo-musica', c.titulo), box); continue;
+      box.appendChild(f);
+      const ver = el('a','btn ver-musica','Ver lista completa ↗'); ver.href = linkPagina(c); ver.target = '_blank'; ver.rel = 'noopener';
+      const cab = el('div','cab-musica'); cab.append(el('h3','titulo-musica', c.titulo), ver);
+      body.append(cab, box); continue;
     }
     const b = el('button','item' + (c.puesto ? ' con-puesto' : '')), m = miniatura(c);
     if(c.puesto) b.appendChild(el('span','puesto', '#' + c.puesto));
