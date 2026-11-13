@@ -45,6 +45,16 @@ const PERFIL = {
 
 const CONTENIDO = [
   {
+    id: "insight",
+    tipo: "audio",
+    titulo: "Insight",
+    temas: ["filosofía", "psicología"],
+    fecha: "2026-11-14",
+    texto: "Una charla sobre mis contradicciones, la necesidad de control y el miedo a estar solo. Con subtítulos sincronizados.",
+    pagina: "insight/",
+    audio: "insight/insight.mp3",
+  },
+  {
     id: "mix-ricky-rickon",
     tipo: "musica",
     titulo: "Mix ricky rickon",

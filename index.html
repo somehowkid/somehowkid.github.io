@@ -152,6 +152,8 @@ article.reader .media a{display:block}
 .ver-musica{flex:none;font-size:13px;padding:6px 12px;white-space:nowrap}
 .media.audio{background:transparent;border-radius:12px}
 .media.audio audio{display:block;width:100%}
+.media.subtitulada{aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden}
+.media.subtitulada iframe{display:block;width:100%;height:100%;border:0}
 .media.tweet iframe{aspect-ratio:auto;height:620px;max-width:550px;margin:0 auto;background:transparent}
 .media.tweet{background:transparent}
 .media.vertical iframe{aspect-ratio:9/16;width:auto;max-width:100%;height:min(80vh,740px);margin:0 auto}
@@ -271,6 +273,7 @@ function armarMedia(item){
     return null;
   }
   if(item.tipo==='audio'){
+    if(item.pagina){ const f = el('iframe'); f.src = item.pagina; f.allow = 'autoplay; fullscreen'; f.allowFullscreen = true; f.loading = 'lazy'; f.title = item.titulo; box.classList.add('subtitulada'); box.appendChild(f); return box; }
     if(!item.audio) return null;
     const a = el('audio'); a.src = item.audio; a.controls = true; a.preload = 'metadata'; box.classList.add('audio'); box.appendChild(a); return box;
   }
