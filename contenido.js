@@ -45,6 +45,13 @@ const PERFIL = {
 
 const CONTENIDO = [
   {
+    id: "grok-repost",
+    tipo: "imagen",
+    titulo: "Lo que dijo Grok",
+    fecha: "2026-11-14",
+    imagen: "img/grok-repost.jpg",
+  },
+  {
     id: "el-icc-y-la-dependencia-corporea",
     tipo: "audio",
     titulo: "El Icc y la dependencia corpórea",
