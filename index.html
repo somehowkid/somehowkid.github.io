@@ -968,7 +968,6 @@ tagDisco.innerHTML = '<span class="ic" aria-hidden="true">🎵</span><span>Músi
 tagDisco.addEventListener('mouseenter', () => { hoverMusica = true; hovered = null; });
 tagDisco.addEventListener('mouseleave', () => { hoverMusica = false; });
 tagDisco.addEventListener('click', () => goRoom('cafe', null, 'tocadiscos'));
-tagsEl.appendChild(tagDisco);
 document.querySelectorAll('[data-room]').forEach(b => b.addEventListener('click', () => goRoom(b.dataset.room)));
 $('#home').addEventListener('click', () => goRoom(null));
 $('#back').addEventListener('click', () => goRoom(null));
