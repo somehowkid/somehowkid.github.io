@@ -45,6 +45,16 @@ const PERFIL = {
 
 const CONTENIDO = [
   {
+    id: "el-icc-y-la-dependencia-corporea",
+    tipo: "audio",
+    titulo: "El Icc y la dependencia corpórea",
+    temas: ["filosofía", "psicología"],
+    fecha: "2026-11-14",
+    texto: "Una charla sobre la conciencia, la IA y por qué tener un cuerpo nos obliga a tener una parte inconsciente. Con subtítulos sincronizados.",
+    pagina: "el-icc-y-la-dependencia-corporea/",
+    audio: "el-icc-y-la-dependencia-corporea/insight.mp3",
+  },
+  {
     id: "insight",
     tipo: "audio",
     titulo: "Insight",
