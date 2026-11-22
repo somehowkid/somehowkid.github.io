@@ -83,6 +83,20 @@ html,body{height:100%;background:#1d1b2e;overflow:hidden;font-family:'Pixelify S
 #kk .hold.dn{background:#ff4d80;transform:scale(.97)}
 .kkbig{text-align:center;font-size:1.5em;font-weight:700;color:#fff6a8;margin-top:.5em}
 
+/* Dibujo con Espe */
+#draw,#view{position:absolute;inset:0;background:rgba(30,20,60,.65);display:flex;align-items:center;justify-content:center}
+#draw .box,#view .box{background:#fff;border:.18em solid #2a2238;border-radius:.5em;box-shadow:inset 0 0 0 .14em #fff,inset 0 0 0 .32em #ff9ccc;padding:.6em 1em;width:80%;max-height:92%;display:flex;flex-direction:column;gap:.45em;text-align:center;align-items:center}
+#draw h3,#view h3{font-size:1.1em;color:#e8505b}
+#draw p{font-size:.78em;line-height:1.35}
+#draw .need{font-weight:700;color:#7a3ab0}
+#drawPrev{max-width:60%;max-height:4.8em;border:.15em solid #2a2238;border-radius:.3em;display:none}
+#viewImg{max-width:100%;max-height:12em;border:.35em solid #a0602f;outline:.12em solid #2a2238;border-radius:.2em}
+#draw .row,#view .row{display:flex;gap:.6em;justify-content:center}
+#draw button,#view button,#draw label{font:inherit;font-weight:700;font-size:.85em;padding:.2em .8em;border:.14em solid #2a2238;border-radius:.35em;background:#fff;cursor:pointer;color:#2a2238}
+#draw .pri,#view .pri{background:#ffd84a}
+#draw label{background:#ff9ccc}
+#drawFile{display:none}
+
 /* Palabra secreta */
 #secret{position:absolute;inset:0;background:rgba(30,20,60,.65);display:flex;align-items:center;justify-content:center}
 #secret .box{background:#fff;border:.18em solid #2a2238;border-radius:.5em;box-shadow:inset 0 0 0 .14em #fff,inset 0 0 0 .32em #78b8ff;padding:.9em 1.1em;width:70%;display:flex;flex-direction:column;gap:.5em;text-align:center}
@@ -146,6 +160,13 @@ kbd{font-family:inherit;background:#fff;color:#2a2238;border-radius:.2em;padding
         <div id="keys"></div>
       </div>
       <div id="kk" class="hidden"></div>
+      <div id="draw" class="hidden"><div class="box"><h3>🖍️ El dibujo de la fiesta</h3>
+        <p>Con Espe, dibujen en un papel la fiesta de cumpleaños. Tiene que tener:<br><span class="need" id="drawNeed"></span></p>
+        <p>Cuando terminen, pedile a un grande que le saque una foto.</p>
+        <img id="drawPrev" alt="Tu dibujo">
+        <input type="file" id="drawFile" accept="image/*">
+        <div class="row"><button id="drawBack">Volver</button><label for="drawFile" id="drawPick">📷 Subir el dibujo</label><button class="pri hidden" id="drawOk">¡Listo! ✔</button></div></div></div>
+      <div id="view" class="hidden"><div class="box"><h3>🖼️ ¡Qué lindo dibujo!</h3><img id="viewImg" alt="Dibujo de la fiesta"><div class="row"><button class="pri" id="viewClose">Cerrar</button></div></div></div>
       <div id="secret" class="hidden"><div class="box"><h3>🔐 Palabra secreta</h3><p>Escribí la palabra que le contestó la abuela a mamá por WhatsApp.</p>
         <input id="secretIn" maxlength="30" autocomplete="off" autocapitalize="characters"><div class="msg" id="secretMsg"></div>
         <div class="row"><button id="secretBack">Volver</button><button class="pri" id="secretOk">Listo ✔</button></div></div></div>
@@ -180,6 +201,8 @@ const CONFIG = {
   hermano: "Mateo",
   abuela: "Abuela",
   tia: "Tía Lara",
+  // Qué tiene que tener el dibujo de la fiesta que hacen con Espe
+  dibujo: "la torta con las velitas, Felipe, Lola y Ginger, y vos con Espe",
   // Misión de WhatsApp: la abuela le contesta a la mamá con esta palabra
   palabraSecreta: "MIGUITA",
   amiga: { correcta: "Espe", otras: ["Pepa", "Ramona"] },
@@ -437,7 +460,8 @@ const CHARS = {
   pintora: { name: 'Pintora',      face: { hair: '#e0a830', style: 'long',  shirt: '#e86a5a', hat: 'beret', bg: '#ffe6d6' } },
   abuela:  { name: CONFIG.abuela,  face: { hair: '#d4d4e0', style: 'bun', shirt: '#9b6ad0', glasses: true, bg: '#efe4ff' } },
   tia:     { name: CONFIG.tia,     face: { hair: '#3a2418', style: 'long', shirt: '#2fb59a', bg: '#d6f5ee' } },
-  buho:    { name: 'Búho sabio',   face: { type: 'owl', bg: '#e4dcff' } },
+  espe:    { name: CONFIG.amiga.correcta, face: { hair: '#c8862a', style: 'long', shirt: '#5bc0eb', bg: '#dff4ff' } },
+  buho:    { name: 'Gatito sabio', face: { type: 'cat', fur: '#f0a050', belly: '#fff1dc', bg: '#ffeedd' } },
   gato:    { name: 'Gatito',       face: { type: 'cat', fur: '#f0a050', belly: '#fff1dc', bg: '#ffeedd' } }
 };
 const faceCv = $('face'), fctx = faceCv.getContext('2d');
@@ -626,13 +650,13 @@ function talkPainter() {
 ents.push({ id: 'pintora', map: 'pueblo', x: 5, y: 9, kind: 'person', long: true, hat: 'beret', quest: 'color', pal: { h: '#e0a830', d: '#e86a5a', q: '#5a4a8a' }, talk: talkPainter });
 ents.push({ id: 'atril', map: 'pueblo', x: 6, y: 9, kind: 'easel', talk: talkPainter });
 
-quests.push({ id: 'edad', pista: 'El búho sabio vive en el barrio, a la derecha, arriba de un tronco.' });
-ents.push({ id: 'buho', map: 'pueblo', x: 22, y: 11, kind: 'owl', quest: 'edad', talk() {
+quests.push({ id: 'edad', pista: 'El gatito sabio está en el barrio, a la derecha, arriba de un tronco.' });
+ents.push({ id: 'buho', map: 'pueblo', x: 22, y: 11, kind: 'cat', stump: true, pal: { k: '#2a2238', c: '#f0a050', l: '#fff1dc', n: '#ff7a9a', p: '#ff7a9a' }, quest: 'edad', talk() {
   const e = CONFIG.edad;
-  if (done.has('edad')) return [step('buho', `¡Uh-uh! ¡${e} años! ¡Qué grande estás!`)];
-  return [step('buho', 'Uh-uh... Soy el búho sabio. Sé muchas cosas...'),
-          { ...question('buho', '¿Cuántos años cumplís hoy?', { label: e + ' años' }, [{ label: (e - 1) + ' años' }, { label: (e + 1) + ' años' }], '¡Uh-uh! Mmm... no. ¡Pensá bien!'),
-            after: [complete('edad'), step('buho', `¡Uh-uh! ¡Sí! ¡${e} años! ¡Feliz cumpleaños!`), ...starMsg()] }];
+  if (done.has('edad')) return [step('buho', `¡Miau! ¡${e} años! ¡Qué grande estás!`)];
+  return [step('buho', 'Miau... Soy el gatito sabio. Sé muchas cosas...'),
+          { ...question('buho', '¿Cuántos años cumplís hoy?', { label: e + ' años' }, [{ label: (e - 1) + ' años' }, { label: (e + 1) + ' años' }], '¡Miau! Mmm... no. ¡Pensá bien!'),
+            after: [complete('edad'), step('buho', `¡Miau miau! ¡Sí! ¡${e} años! ¡Feliz cumpleaños!`), ...starMsg()] }];
 } });
 
 /* ======== PERROS ======== */
@@ -864,6 +888,44 @@ $('secretBack').addEventListener('pointerdown', e => { e.preventDefault(); e.sto
 $('secretIn').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); checkSecret(); } else if (e.key === 'Escape') closeSecret(); });
 $('secret').addEventListener('pointerdown', e => e.stopPropagation());
 
+/* ======== ESPE: el dibujo de la fiesta ======== */
+let dibujo = null, dibujoImg = null, dibujoTmp = null;
+function setDibujo(url) { dibujo = url; dibujoImg = new Image(); dibujoImg.src = url; }
+try { const d = localStorage.getItem('greta-dibujo'); if (d) setDibujo(d); } catch (e) {}
+quests.push({ id: 'dibujo', pista: `${CONFIG.amiga.correcta} está en el barrio, cerca del camino, a la izquierda. ¡Quiere dibujar con vos!` });
+ents.push({ id: 'espe', map: 'pueblo', x: 9, y: 7, kind: 'person', long: true, quest: 'dibujo', pal: { h: '#c8862a', d: '#5bc0eb', q: '#3a3a6a' }, talk() {
+  if (done.has('dibujo')) return [step('espe', '¡Nuestro dibujo quedó hermoso! ¿Lo viste colgado en tu casa?')];
+  return [step('espe', `¡${N}! ¡Feliz cumple, amiga!`),
+          step('espe', '¿Querés que dibujemos? ¡Hagamos un dibujo de tu fiesta de cumpleaños!'),
+          step('espe', `Tiene que tener ${CONFIG.dibujo}.`),
+          step('espe', '¡Lo dibujamos en un papel y después lo subimos!'),
+          () => setTimeout(openDraw, 0)];
+} });
+ents.push({ id: 'cuadro', map: 'casa', x: 8, y: 1, w: 2, kind: 'frame', talk() {
+  if (!dibujo) return [step('', 'Una pared vacía... ¡acá quedaría lindo un cuadro!')];
+  return [() => setTimeout(() => { mode = 'view'; $('viewImg').src = dibujo; $('view').classList.remove('hidden'); }, 0)];
+} });
+function openDraw() { mode = 'draw'; dibujoTmp = null; $('drawNeed').textContent = CONFIG.dibujo; $('drawPrev').style.display = 'none'; $('drawOk').classList.add('hidden'); $('draw').classList.remove('hidden'); }
+function closeDraw() { $('draw').classList.add('hidden'); mode = 'play'; }
+$('drawFile').addEventListener('change', e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  const img = new Image(); const u = URL.createObjectURL(f);
+  img.onload = () => {
+    const max = 640, k = Math.min(1, max / Math.max(img.width, img.height)), c = document.createElement('canvas');
+    c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    dibujoTmp = c.toDataURL('image/jpeg', 0.82); URL.revokeObjectURL(u);
+    $('drawPrev').src = dibujoTmp; $('drawPrev').style.display = 'block'; $('drawOk').classList.remove('hidden'); $('drawPick').textContent = '📷 Cambiar foto'; Snd.item();
+  };
+  img.src = u; e.target.value = '';
+});
+$('drawOk').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); if (!dibujoTmp) return;
+  setDibujo(dibujoTmp); try { localStorage.setItem('greta-dibujo', dibujoTmp); } catch (er) {}
+  closeDraw(); Snd.correct();
+  say([step('espe', '¡Quedó HERMOSO! ¡Somos unas artistas!'), complete('dibujo'), step('espe', '¡Lo vamos a colgar en la pared del living de tu casa!'), ...starMsg()]); });
+$('drawBack').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); closeDraw(); });
+$('viewClose').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); $('view').classList.add('hidden'); mode = 'play'; });
+['draw', 'view'].forEach(id => $(id).addEventListener('pointerdown', e => e.stopPropagation()));
+
 /* ======== Extras opcionales ======== */
 const extraSpots = [[25, 13], [9, 7], [27, 9]];
 CONFIG.extras.slice(0, 3).forEach((q, i) => {
@@ -979,6 +1041,7 @@ function pressB() { if (mode === 'dialog') dialogB(); else if (mode === 'noteboo
 const KEYDIR = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right' };
 addEventListener('keydown', e => {
   if (e.target && e.target.tagName === 'INPUT') return;
+  if (mode === 'draw' || mode === 'view') { if (e.key === 'Escape' || (mode === 'view' && ['Enter','a','A',' '].includes(e.key))) { e.preventDefault(); $(mode).classList.add('hidden'); mode = 'play'; } return; }
   if (mode === 'karaoke') { if (e.key === 'Escape' && KK.step !== 'sing') closeKaraoke(); if (['b','B','x','X'].includes(e.key)) held.B = 1; return; }
   if (mode === 'notebook') {
     e.preventDefault(); if (e.repeat) return;
@@ -1112,7 +1175,8 @@ function drawEnt(e, sx, sy) {
       if (wag) { const tx = e.dir === 'left' ? 14 : 1; R(tx, 6, 1, 1, '#2a2238'); }
       break; }
     case 'cat': {
-      OY = sy + bob; const p = e.pal;
+      if (e.stump) { R(1,11,14,5,'#2a2238'); R(2,12,12,4,'#a0602f'); R(2,12,12,1,'#d8a06a'); }
+      OY = sy + bob - (e.stump ? 4 : 0); const p = e.pal;
       circ(8,11,5,p.k); circ(8,11,4,p.c); circ(8,12,2,p.l);
       R(3,1,3,4,p.k); R(4,2,1,2,p.n); R(10,1,3,4,p.k); R(11,2,1,2,p.n);
       circ(8,5,4,p.k); circ(8,5,3,p.c); R(6,4,1,2,p.k); R(10,4,1,2,p.k); R(8,6,1,1,p.n);
@@ -1126,6 +1190,10 @@ function drawEnt(e, sx, sy) {
       OX = sx; R(4,1,6,3,'#2a2238'); R(5,1,4,2,'#ffd84a');
       OX = sx + 32; R(5,0,7,4,'#2a2238'); R(6,0,5,3,'#78b8ff'); R(8,0,1,3,'#e8505b');
       break;
+    case 'frame': {
+      if (!dibujo || !dibujoImg || !dibujoImg.complete) break;
+      R(2,-10,28,22,'#2a2238'); R(3,-9,26,20,'#a0602f'); R(4,-8,24,18,'#c98b4f');
+      const iw = 22, ih = 15; ctx.drawImage(dibujoImg, sx + 5, sy - 7, iw, ih); break; }
     case 'balloons': {
       ['#e8505b', '#ffd84a', '#78b8ff'].forEach((c, i) => { const bx = 2 + i * 5, by = -14 + Math.round(Math.sin(time * 2 + i) * 1.5) - (i === 1 ? 3 : 0);
         R(bx + 2, by + 6, 1, 10 - by - 8 + 4, '#ffffff'); circ(bx + 2, by + 2, 3, '#2a2238'); circ(bx + 2, by + 2, 2, c); R(bx + 1, by + 1, 1, 1, '#ffffff'); });
