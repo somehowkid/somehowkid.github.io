@@ -83,6 +83,17 @@ html,body{height:100%;background:#1d1b2e;overflow:hidden;font-family:'Pixelify S
 #kk .hold.dn{background:#ff4d80;transform:scale(.97)}
 .kkbig{text-align:center;font-size:1.5em;font-weight:700;color:#fff6a8;margin-top:.5em}
 
+/* Palabra secreta */
+#secret{position:absolute;inset:0;background:rgba(30,20,60,.65);display:flex;align-items:center;justify-content:center}
+#secret .box{background:#fff;border:.18em solid #2a2238;border-radius:.5em;box-shadow:inset 0 0 0 .14em #fff,inset 0 0 0 .32em #78b8ff;padding:.9em 1.1em;width:70%;display:flex;flex-direction:column;gap:.5em;text-align:center}
+#secret h3{font-size:1.15em;color:#e8505b}
+#secret p{font-size:.8em}
+#secret input{font:inherit;font-size:1.3em;font-weight:700;text-align:center;text-transform:uppercase;padding:.25em;border:.14em solid #2a2238;border-radius:.35em;letter-spacing:.08em}
+#secret .msg{font-size:.8em;font-weight:700;min-height:1.2em;color:#e8505b}
+#secret .row{display:flex;gap:.6em;justify-content:center}
+#secret button{font:inherit;font-weight:700;font-size:.9em;padding:.2em .8em;border:.14em solid #2a2238;border-radius:.35em;background:#fff;cursor:pointer}
+#secret button.pri{background:#ffd84a}
+
 /* Pantalla de título */
 #title{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4em;background:linear-gradient(rgba(30,20,70,.55),rgba(30,20,70,.75));color:#fff;text-align:center;cursor:pointer}
 #title h1{font-size:2.5em;line-height:1.05;color:#ffd84a;text-shadow:.07em 0 #2a2238,-.07em 0 #2a2238,0 .07em #2a2238,0 -.07em #2a2238,.12em .14em 0 #e8505b}
@@ -135,6 +146,9 @@ kbd{font-family:inherit;background:#fff;color:#2a2238;border-radius:.2em;padding
         <div id="keys"></div>
       </div>
       <div id="kk" class="hidden"></div>
+      <div id="secret" class="hidden"><div class="box"><h3>🔐 Palabra secreta</h3><p>Escribí la palabra que le contestó la abuela a mamá por WhatsApp.</p>
+        <input id="secretIn" maxlength="30" autocomplete="off" autocapitalize="characters"><div class="msg" id="secretMsg"></div>
+        <div class="row"><button id="secretBack">Volver</button><button class="pri" id="secretOk">Listo ✔</button></div></div></div>
       <div id="title">
         <h1 id="ttl"></h1>
         <div class="sub" id="ttlSub"></div>
@@ -165,6 +179,9 @@ const CONFIG = {
   papa: "Papá",
   hermano: "Mateo",
   abuela: "Abuela",
+  tia: "Tía Lara",
+  // Misión de WhatsApp: la abuela le contesta a la mamá con esta palabra
+  palabraSecreta: "MIGUITA",
   amiga: { correcta: "Espe", otras: ["Pepa", "Ramona"] },
   mayusculas: false,            // true = todo el texto en MAYÚSCULAS
   pelo: "#6b3a1f",              // color de pelo de Greta
@@ -419,6 +436,7 @@ const CHARS = {
   chef:    { name: 'Cocinero',     face: { hair: '#5a341a', style: 'short', shirt: '#ffffff', hat: 'chef', bg: '#fff3d6' } },
   pintora: { name: 'Pintora',      face: { hair: '#e0a830', style: 'long',  shirt: '#e86a5a', hat: 'beret', bg: '#ffe6d6' } },
   abuela:  { name: CONFIG.abuela,  face: { hair: '#d4d4e0', style: 'bun', shirt: '#9b6ad0', glasses: true, bg: '#efe4ff' } },
+  tia:     { name: CONFIG.tia,     face: { hair: '#3a2418', style: 'long', shirt: '#2fb59a', bg: '#d6f5ee' } },
   buho:    { name: 'Búho sabio',   face: { type: 'owl', bg: '#e4dcff' } },
   gato:    { name: 'Gatito',       face: { type: 'cat', fur: '#f0a050', belly: '#fff1dc', bg: '#ffeedd' } }
 };
@@ -817,6 +835,34 @@ ents.push({ id: 'abuela', map: 'abuela', x: 7, y: 4, kind: 'person', long: true,
           step('abuela', hayLetra ? '¡Ya tenés la letra! Elegí la música y ¡a cantar!' : 'Primero escribí la letra, después elegís la música y ¡a cantar!'),
           () => setTimeout(() => openKaraoke(hayLetra ? 'music' : 'write'), 0)];
 } });
+
+/* ======== TÍA LARA: misión de WhatsApp ======== */
+const norm = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/gi, '').toLowerCase();
+let tiaState = 0;
+quests.push({ id: 'whatsapp', pista: `La ${CONFIG.tia.toLowerCase()} está en el barrio, a la derecha, cerca de los árboles. ¡Tiene una misión secreta!` });
+ents.push({ id: 'tia', map: 'pueblo', x: 25, y: 13, kind: 'person', long: true, quest: 'whatsapp', pal: { h: '#3a2418', d: '#2fb59a', q: '#3a3a6a' }, talk() {
+  if (done.has('whatsapp')) return [step('tia', '¡Jajaja! La abuela se rió muchísimo con lo del sanguchito. 🥪')];
+  if (tiaState === 0) return [step('tia', `¡${N}! ¡Feliz cumple, sobrina hermosa!`),
+    step('tia', 'Te tengo una misión SECRETA... pero necesitás ayuda de mamá.'),
+    step('tia', 'Pedile a mamá que le mande un WhatsApp a la abuela que diga: "¡Tenés cara de sanguchito de miga!"'),
+    step('tia', '...¡y que le mande una foto de un sanguchito de miga! 🥪'),
+    step('tia', 'La abuela te va a contestar con una palabra secreta. Cuando la tengas, vení y decímela.'),
+    () => { tiaState = 1; }];
+  return [step('tia', '¿Ya tenés la palabra secreta de la abuela?'), () => setTimeout(openSecret, 0)];
+} });
+function openSecret() { mode = 'secret'; $('secretIn').value = ''; $('secretMsg').textContent = ''; $('secret').classList.remove('hidden'); setTimeout(() => $('secretIn').focus(), 50); }
+function closeSecret() { $('secret').classList.add('hidden'); $('secretIn').blur(); mode = 'play'; }
+function checkSecret() {
+  const v = $('secretIn').value; if (!v.trim()) return;
+  if (norm(v) === norm(CONFIG.palabraSecreta)) {
+    closeSecret(); Snd.correct();
+    say([step('tia', `¡${CONFIG.palabraSecreta.toUpperCase()}! ¡Esa es! ¡Misión secreta cumplida!`), complete('whatsapp'), step('tia', '¡Sos la mejor agente secreta de la familia! 🕵️'), ...starMsg()]);
+  } else { Snd.wrong(); $('secretMsg').textContent = 'Mmm... esa no es. ¿Le preguntaste bien a la abuela?'; $('secretIn').select(); }
+}
+$('secretOk').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); checkSecret(); });
+$('secretBack').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); closeSecret(); });
+$('secretIn').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); checkSecret(); } else if (e.key === 'Escape') closeSecret(); });
+$('secret').addEventListener('pointerdown', e => e.stopPropagation());
 
 /* ======== Extras opcionales ======== */
 const extraSpots = [[25, 13], [9, 7], [27, 9]];
